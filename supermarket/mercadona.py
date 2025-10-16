@@ -4,6 +4,7 @@ import requests
 import pandas as pd
 import time
 import numpy as np
+import os
 
 URL_CATEGORY_MERCADONA = "https://tienda.mercadona.es/api/categories/"
 URL_PRODUCTS_BY_CATEGORY_MERCADONA = "https://tienda.mercadona.es/api/categories/"
@@ -32,6 +33,15 @@ def gestion_mercadona(ruta):
     
     return df_mercadona;
 
+
+def export_csv(df, ruta, nombre_archivo):
+    """
+    Igual que export_excel pero en CSV, 
+    exporta en la carpeta export en la raíz.
+    """
+    path = os.path.join(ruta, f"{nombre_archivo}.csv")
+    df.to_csv(path, index=False, encoding='utf-8-sig')
+    print(f"Archivo CSV guardado en: {path}")
 
 def get_products_by_category_mercadona(list_categories, ruta):
     
@@ -80,12 +90,10 @@ def get_products_by_category_mercadona(list_categories, ruta):
         
         # Unir los DataFrames verticalmente
         df_products = pd.concat([df_products, df_products_by_categoria], ignore_index=True)
-        
-        time.sleep(1)
-    
-    #Export Excel
-    export_excel(df_products, ruta, "products_mercadona_", "Productos_Mercadona")
-    
+        time.sleep(1)  # Pausa de 1 segundo entre categorías
+
+    #Exportar a CSV
+    export_csv(df_products, ruta, "products_mercadona_")
     return df_products
     
 

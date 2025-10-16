@@ -5,6 +5,7 @@ import requests
 from dotenv import load_dotenv
 import pandas as pd
 import time
+import os
 
 URL_CATEGORY_DIA = "https://www.dia.es/api/v1/plp-insight/initial_analytics/charcuteria-y-quesos/jamon-cocido-lacon-fiambres-y-mortadela/c/L2001?navigation=L2001"
 URL_PRODUCTS_BY_CATEGORY_DIA = "https://www.dia.es/api/v1/plp-back/reduced"
@@ -52,8 +53,17 @@ def gestion_dia(ruta):
     return df_dia
 
 
+def export_csv(df, ruta, nombre_archivo):
+    """
+    Igual que export_excel pero en formato CSV, 
+    exporta el dataframe a la carpeta export en la raíz.
+    """
+    path = os.path.join(ruta, f"{nombre_archivo}.csv")
+    df.to_csv(path, index=False, encoding='utf-8-sig')
+    print(f"Archivo CSV guardado en: {path}")
+
 def get_products_by_category_dia(list_categories, ruta):
-    
+
     df_products = pd.DataFrame()
     
     for index, stringCategoria in enumerate(list_categories):
@@ -94,10 +104,10 @@ def get_products_by_category_dia(list_categories, ruta):
             
         except:
             print("ERROR - En la obtencion de productos de la categoria")
-            
-    #Export Excel
-    export_excel(df_products, ruta, "products_dia_", "Productos_Dia")
-    
+        time.sleep(1)  # Pausa de 1 segundo entre categorías
+
+    #Exportar a CSV
+    export_csv(df_products, ruta, "products_dia_")
     return df_products
             
 

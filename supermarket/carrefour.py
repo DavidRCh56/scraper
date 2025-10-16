@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import pandas as pd
 import time
 import numpy as np
+import os
 
 URL_CATEGORY_CARREFOUR = "https://www.carrefour.es/cloud-api/categories-api/v1/categories/menu/"
 URL_PRODUCTS_BY_CATEGORY_CARREFOUR = "https://www.carrefour.es/cloud-api/plp-food-papi/v1"
@@ -53,8 +54,17 @@ def gestion_carrefour(ruta):
     return df_carrefour
     
 
+def export_csv(df, ruta, nombre_archivo):
+    """
+    Igual que export_excel pero en formato CSV, 
+    exporta el dataframe a la carpeta export en la raíz.
+    """
+    path = os.path.join(ruta, f"{nombre_archivo}.csv")
+    df.to_csv(path, index=False, encoding='utf-8-sig')
+    print(f"Archivo CSV guardado en: {path}")
+
 def get_products_by_category_carrefour(list_categories, ruta):
-    
+
     df_products = pd.DataFrame()
     
     for index, stringCategoria in enumerate(list_categories):
@@ -64,7 +74,7 @@ def get_products_by_category_carrefour(list_categories, ruta):
         #Cumplimentar todos los offset hasta el error
         existeOffset = True
         offsetPagina = 0
-        while(existeOffset == True):
+        while existeOffset:
             try:
                 print("[OFFSET] " + str(offsetPagina) + " - Categoria "+str(stringCategoria)+".")
                 #Obtener los productos de la categoria
@@ -107,7 +117,7 @@ def get_products_by_category_carrefour(list_categories, ruta):
                 if existe_valor == False:
                     # Unir los DataFrames verticalmente
                     df_products = pd.concat([df_products, df_products_by_categoria], ignore_index=True)
-                    offsetPagina = offsetPagina + 24
+                    offsetPagina += 24
                 else:
                     # print("ERROR - Offset sobrepasado")
                     existeOffset = False
@@ -115,10 +125,10 @@ def get_products_by_category_carrefour(list_categories, ruta):
             except:
                 print("[FIN] - Fin de la obtencion de productos de la categoria")
                 existeOffset = False
-    
-    #Export Excel
-    export_excel(df_products, ruta, "products_carrefour_", "Productos_Carrefour")
-    
+        time.sleep(1)  # Pausa de 1 segundo entre categorías
+
+    #Exportar a CSV
+    export_csv(df_products, ruta, "products_carrefour_")
     return df_products
 
 def get_ids_categorys_carrefour():

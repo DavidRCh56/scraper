@@ -67,14 +67,20 @@ def checkContions(ruta_env, ruta):
     
     return True
     
+def export_csv(df, ruta, nombre_archivo):
+    path = os.path.join(ruta, f"{nombre_archivo}.csv")
+    df.to_csv(path, index=False, encoding='utf-8-sig')
+    print(f"Archivo CSV guardado en: {path}")
+
 if __name__ == "__main__":
 
     load_dotenv()
     
     ruta_actual = os.getcwd()
-    ruta = ruta_actual + "\export\\"
-    ruta_env = ruta_actual + "\.env"
-    
+    ruta = os.path.join(ruta_actual, "./export")
+    ruta_env = os.path.join(ruta_actual, "./.env")
+
+
     if checkContions(ruta_env, ruta) == True:
         print("")
         print("------------------------------------MERCADONA------------------------------------")
@@ -100,6 +106,6 @@ if __name__ == "__main__":
         
         #Marcar los productos favoritos
         df_supermercados = check_favortites_products(df_supermercados)
-        
-        #Export Excel
-        export_excel(df_supermercados, ruta, "products", "Productos")
+
+        #Exportar a CSV
+        export_csv(df_supermercados, ruta, "products")
